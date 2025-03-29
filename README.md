@@ -71,6 +71,25 @@ go get -u github.com/fogfish/typestep
 Example below is most simplest illustration on how to make a type-safe composition of lambda function into AWS Step Function workflow.
 
 ```go
+a := typestep.From[string](
+  awsevents.EventBus_FromEventBusArn(/* ... */),
+)
+
+b := typestep.Join(
+  func(name string) (string, error) { /* ... */ },
+  awslambda.Function_FromFunctionArn(/* ... */),
+  a,
+)
+
+c := typestep.ToQueue(
+  awssqs.Queue_FromQueueArn(/* ... */),
+  b,
+)
+
+workflow := typestep.NewTypeStep(stack, jsii.String("Workflow"),
+  &typestep.TypeStepProps{},
+)
+typestep.StateMachine(workflow, c)
 ```
 
 More detailed examples are [here](./examples/)
