@@ -9,6 +9,7 @@
 package typestep
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -31,7 +32,7 @@ func From[A any](in awsevents.IEventBus) duct.Morphism[A, A] {
 
 // Compose lambda function transformer 𝑓: B ⟼ C with morphism 𝑚: A ⟼ B producing a new morphism 𝑚: A ⟼ C.
 func Join[A, B, C any](
-	_ func(B) (C, error),
+	_ func(context.Context, B) (C, error),
 	f awslambda.IFunction,
 	m duct.Morphism[A, B],
 ) duct.Morphism[A, C] {
@@ -52,7 +53,7 @@ type lambda struct {
 // either yielding individual elements or uniting (e.g. use Unit(Join(g, Lift(f)))
 // to leave nested context into the morphism 𝑚: A ⟼ []C).
 func Lift[A, B, C any](
-	_ func(B) (C, error),
+	_ func(context.Context, B) (C, error),
 	f awslambda.IFunction,
 	m duct.Morphism[A, []B],
 ) duct.Morphism[A, C] {
@@ -64,7 +65,7 @@ func Lift[A, B, C any](
 // to specify the maximum number of concurrent invocations of the lambda function.
 func LiftP[A, B, C any](
 	n int,
-	_ func(B) (C, error),
+	_ func(context.Context, B) (C, error),
 	f awslambda.IFunction,
 	m duct.Morphism[A, []B],
 ) duct.Morphism[A, C] {
