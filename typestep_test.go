@@ -9,6 +9,7 @@
 package typestep_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/aws/aws-cdk-go/awscdk/v2"
@@ -21,8 +22,8 @@ import (
 	"github.com/fogfish/typestep"
 )
 
-func fStoS(string) (string, error)    { return "", nil }
-func fStoSs(string) ([]string, error) { return nil, nil }
+func fStoS(context.Context, string) (string, error)    { return "", nil }
+func fStoSs(context.Context, string) ([]string, error) { return nil, nil }
 
 func TestTypeStep(t *testing.T) {
 	// GIVEN

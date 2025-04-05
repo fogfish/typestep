@@ -8,7 +8,10 @@
 
 package core
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 type Account struct {
 	ID string `json:"id"`
@@ -19,7 +22,7 @@ type User struct {
 	Name string `json:"name"`
 }
 
-func GetUser(acc Account) (User, error) {
+func GetUser(ctx context.Context, acc Account) (User, error) {
 	return User{
 		ID:   acc.ID,
 		Name: "Alice",
@@ -32,7 +35,7 @@ type Category struct {
 	User User   `json:"user"`
 }
 
-func PickCategory(user User) ([]Category, error) {
+func PickCategory(ctx context.Context, user User) ([]Category, error) {
 	return []Category{
 		{ID: "A", User: user},
 		{ID: "B", User: user},
@@ -47,7 +50,7 @@ type Product struct {
 	User     User   `json:"user"`
 }
 
-func PickProduct(cat Category) ([]Product, error) {
+func PickProduct(ctx context.Context, cat Category) ([]Product, error) {
 	return []Product{
 		{ID: "001", Category: cat.ID, User: cat.User},
 		{ID: "002", Category: cat.ID, User: cat.User},
@@ -57,7 +60,7 @@ func PickProduct(cat Category) ([]Product, error) {
 	}, nil
 }
 
-func MailTo(p Product) (string, error) {
+func MailTo(ctx context.Context, p Product) (string, error) {
 	tmpl := `
 Dear %s!
 
