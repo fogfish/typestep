@@ -26,8 +26,13 @@ import (
 )
 
 // Creates new morphism 𝑚, binding it with EventBridge for reading category `A` events.
-func From[A any](in awsevents.IEventBus) duct.Morphism[A, A] {
-	return duct.From(duct.L1[A](in))
+func From[A any](in awsevents.IEventBus, cat ...string) duct.Morphism[A, A] {
+	return duct.From(duct.L1[A](source{cat: cat, bus: in}))
+}
+
+type source struct {
+	cat []string
+	bus awsevents.IEventBus
 }
 
 // Compose lambda function transformer 𝑓: B ⟼ C with morphism 𝑚: A ⟼ B producing a new morphism 𝑚: A ⟼ C.
@@ -295,10 +300,13 @@ func (ts *typeStep) OnLeaveMap(depth int, node duct.AstMap) error {
 
 func (ts *typeStep) OnEnterFrom(depth int, node duct.AstFrom) error {
 	switch f := node.Source.(type) {
-	case awsevents.IEventBus:
-		ts.bus = f
+	case source:
+		ts.bus = f.bus
 		ts.eventPattern = &awsevents.EventPattern{
 			DetailType: jsii.Strings(node.Type),
+		}
+		if len(f.cat) != 0 {
+			ts.eventPattern.DetailType = jsii.Strings(f.cat...)
 		}
 		ts.args = "$.detail"
 		return nil
