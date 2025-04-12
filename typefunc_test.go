@@ -29,7 +29,6 @@ func TestFunctionTyped(t *testing.T) {
 		typestep.NewFunctionTypedProps(test.Main,
 			&scud.FunctionGoProps{
 				SourceCodeModule: "github.com/fogfish/typestep",
-				SourceCodeLambda: "internal/test",
 			},
 		),
 	)

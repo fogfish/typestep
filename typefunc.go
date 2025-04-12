@@ -87,8 +87,8 @@ func NewFunctionTypedProps[A, B any](f Lambda[A, B], props *scud.FunctionGoProps
 
 // Instantiates deployment for "type-safe" AWS Lambda.
 func NewFunctionTyped[A, B any](scope constructs.Construct, id *string, spec *FunctionTypedProps[A, B]) *Function[A, B] {
-	autogen(spec.Handler, spec.SourceCodeModule, spec.SourceCodeLambda)
-	spec.SourceCodeLambda = filepath.Join(spec.SourceCodeLambda, agdir)
+	path := autogen(spec.Handler, spec.SourceCodeModule, spec.SourceCodeLambda)
+	spec.SourceCodeLambda = filepath.Join(path, agdir)
 	flambda := scud.NewFunctionGo(scope, id, spec.FunctionGoProps)
 
 	return &Function[A, B]{
@@ -124,9 +124,8 @@ import (
 func main() { lambda.Start(%s()) }
 `, time.Now(), path, base)
 
-	ffile, _ := fobj.FileLine(fptr)
-	goroot := strings.Split(ffile, "go/src")
-	codepath := filepath.Join(goroot[0], "go/src", scModule, scLambda, agdir, "main.go")
+	gofile, _ := fobj.FileLine(fptr)
+	codepath := filepath.Join(filepath.Dir(gofile), agdir, "main.go")
 
 	err := os.MkdirAll(filepath.Dir(codepath), 0766)
 	if err != nil {
@@ -137,5 +136,5 @@ func main() { lambda.Start(%s()) }
 		panic(err)
 	}
 
-	return path
+	return strings.TrimPrefix(path, scModule)
 }
