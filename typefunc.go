@@ -24,7 +24,7 @@ import (
 )
 
 // Signature for type-safe entry point to lambda function
-type Lambda[A, B any] = func(context.Context, A) (B, error)
+type Lambda[A, B any] = func() func(context.Context, A) (B, error)
 
 // Deploys a function as an AWS Lambda while preserving type-safe annotations.
 // This construct is designed for Infrastructure as Code (IaC) scenarios where
@@ -74,11 +74,11 @@ func Function_FromFunctionArn[A, B any](scope constructs.Construct, id *string, 
 // boilerplate
 type FunctionTypedProps[A, B any] struct {
 	*scud.FunctionGoProps
-	Handler func() Lambda[A, B]
+	Handler Lambda[A, B]
 }
 
-// Constructor for FunctionTypedProps to support automatic inference of types from function
-func FunctionTyped[A, B any](f func() Lambda[A, B], props *scud.FunctionGoProps) *FunctionTypedProps[A, B] {
+// Constructor for NewFunctionTypedProps to support automatic inference of types from function
+func NewFunctionTypedProps[A, B any](f Lambda[A, B], props *scud.FunctionGoProps) *FunctionTypedProps[A, B] {
 	return &FunctionTypedProps[A, B]{
 		FunctionGoProps: props,
 		Handler:         f,
@@ -100,7 +100,7 @@ func NewFunctionTyped[A, B any](scope constructs.Construct, id *string, spec *Fu
 
 const agdir = "autogen"
 
-func autogen[A, B any](f func() Lambda[A, B], scModule, scLambda string) string {
+func autogen[A, B any](f Lambda[A, B], scModule, scLambda string) string {
 	fptr := reflect.ValueOf(f).Pointer()
 	fobj := runtime.FuncForPC(fptr)
 	if fobj == nil {

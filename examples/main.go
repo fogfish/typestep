@@ -36,28 +36,28 @@ func main() {
 	//
 	// Declare AWS Lambda with type safe annotations
 	a2u := typestep.NewFunctionTyped(stack, jsii.String("AtoU"),
-		typestep.FunctionTyped(core.GetUserF, &scud.FunctionGoProps{
+		typestep.NewFunctionTypedProps(core.GetUserF, &scud.FunctionGoProps{
 			SourceCodeModule: "github.com/fogfish/typestep",
 			SourceCodeLambda: "examples/cmd/fAtoU",
 		}),
 	)
 
 	u2cs := typestep.NewFunctionTyped(stack, jsii.String("UtoCs"),
-		typestep.FunctionTyped(core.PickCategoryF, &scud.FunctionGoProps{
+		typestep.NewFunctionTypedProps(core.PickCategoryF, &scud.FunctionGoProps{
 			SourceCodeModule: "github.com/fogfish/typestep",
 			SourceCodeLambda: "examples/cmd/fUtoCs",
 		}),
 	)
 
 	c2ps := typestep.NewFunctionTyped(stack, jsii.String("CtoPs"),
-		typestep.FunctionTyped(core.PickProductF, &scud.FunctionGoProps{
+		typestep.NewFunctionTypedProps(core.PickProductF, &scud.FunctionGoProps{
 			SourceCodeModule: "github.com/fogfish/typestep",
 			SourceCodeLambda: "examples/cmd/fCtoPs",
 		}),
 	)
 
 	p2s := typestep.NewFunctionTyped(stack, jsii.String("PtoS"),
-		typestep.FunctionTyped(core.MailToF, &scud.FunctionGoProps{
+		typestep.NewFunctionTypedProps(core.MailToF, &scud.FunctionGoProps{
 			SourceCodeModule: "github.com/fogfish/typestep",
 			SourceCodeLambda: "examples/cmd/fPtoS",
 		}),

@@ -122,7 +122,7 @@ func Factory() func(ctx context.Context, acc Account) (User, error) { return Get
 
 // declares AWS Lambda resource
 f := typestep.NewFunctionTyped(stack, jsii.String("Lambda"),
-  typestep.FunctionTyped(Factory,
+  typestep.NewFunctionTypedProps(Factory,
     &scud.FunctionGoProps{
       SourceCodeModule: "github.com/fogfish/app",
       SourceCodeLambda: "cmd/lambda",

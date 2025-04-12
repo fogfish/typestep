@@ -4,7 +4,6 @@ go 1.24
 
 require (
 	github.com/aws/aws-cdk-go/awscdk/v2 v2.186.0
-	github.com/aws/aws-lambda-go v1.47.0
 	github.com/aws/jsii-runtime-go v1.110.0
 	github.com/fogfish/scud v0.10.5
 	github.com/fogfish/typestep v0.0.0-00010101000000-000000000000
