@@ -20,6 +20,8 @@ github.com/fogfish/golem/duct v0.0.1 h1:8LWf6+A6woFjeyBVTyYzf9B+cRWQSEjaisTQ5E2r
 github.com/fogfish/golem/duct v0.0.1/go.mod h1:Kq+iLf16NEVKnAmRc6dotUTalt2ZKkHx89a2QcN6lJo=
 github.com/fogfish/it/v2 v2.2.1 h1:NuuaENAZka8XiJkEj2Q6THRsHSwleC/BLDux82NvkII=
 github.com/fogfish/it/v2 v2.2.1/go.mod h1:HHwufnTaZTvlRVnSesPl49HzzlMrQtweKbf+8Co/ll4=
+github.com/fogfish/scud v0.10.5 h1:B4nSxNTUmUWeFvGwNp7SkKLKKpuX18a2suSeXML6x3E=
+github.com/fogfish/scud v0.10.5/go.mod h1:QMWoWSpEDZT1n9ky1qBylBHcm+kXIWBK5ha/S2kIPO4=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=

@@ -29,6 +29,10 @@ func GetUser(ctx context.Context, acc Account) (User, error) {
 	}, nil
 }
 
+func GetUserF() func(ctx context.Context, acc Account) (User, error) {
+	return GetUser
+}
+
 // Category that is recommended to a user
 type Category struct {
 	ID   string `json:"id"`
@@ -41,6 +45,10 @@ func PickCategory(ctx context.Context, user User) ([]Category, error) {
 		{ID: "B", User: user},
 		{ID: "C", User: user},
 	}, nil
+}
+
+func PickCategoryF() func(ctx context.Context, user User) ([]Category, error) {
+	return PickCategory
 }
 
 // Product that is recommended to a user
@@ -60,6 +68,10 @@ func PickProduct(ctx context.Context, cat Category) ([]Product, error) {
 	}, nil
 }
 
+func PickProductF() func(ctx context.Context, cat Category) ([]Product, error) {
+	return PickProduct
+}
+
 func MailTo(ctx context.Context, p Product) (string, error) {
 	tmpl := `
 Dear %s!
@@ -67,4 +79,8 @@ Dear %s!
 Check out our the %s pick from this category %s—you might find exactly what you need!
 `
 	return fmt.Sprintf(tmpl, p.User.Name, p.ID, p.Category), nil
+}
+
+func MailToF() func(ctx context.Context, p Product) (string, error) {
+	return MailTo
 }

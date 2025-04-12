@@ -98,25 +98,40 @@ More detailed examples are [here](./examples/)
 
 AWS Lambda does not impose restrictions on the development runtime, allowing the use of type-safe languages like Go. However, outside of the function itself, type safety is not enforced by the AWS environment, as Lambda relies on JSON for input and output handling. As a consequence the duck typing is used when composing Lambdas. When building Go-based workflows, Lambdas must be lifted into a type-safe abstraction. Since Lambda is merely a deployment pattern, it is recommended to define workflow functions within the core domain and reference them in both the Lambda configuration and infrastructure-as-code (IaC) definitions.  
 
+Unlike a typical AWS Lambda deployment where `func main()` serves as the entry point, this library demands a function that returns a valid AWS Lambda handler of the form:
+
+```go
+func Main() func(context.Context, A) (B, error) {
+  /* AWS Lambda bootstrap code goes here */
+  return func(context.Context, A) (B, error) {
+    /* AWS Lambda handler goes here */
+  }
+}
+```
+
+The primary reason is that the library automatically generates a `main.go` file from the provided handler, ensuring consistent wiring and preserving type information throughout the deployment and execution.
+
 ```go
 // app/internal/core/biz.go
-func GetUser(acc Account) (User, error) { /* ... */ } 
+func GetUser(ctx context.Context, acc Account) (User, error) { /* ... */ } 
 
 // app/cmd/lambda/main.go
-func main() { lambda.Start(core.GetUser) }
+func Factory() func(ctx context.Context, acc Account) (User, error) { return GetUser } 
 
 // app/internal/cdk/workflow.go
 
 // declares AWS Lambda resource
-f := scud.NewFunctionGo(stack, jsii.String("Lambda"),
-  &scud.FunctionGoProps{
-    SourceCodeModule: "github.com/fogfish/app",
-    SourceCodeLambda: "cmd/lambda",
-  },
+f := typestep.NewFunctionTyped(stack, jsii.String("Lambda"),
+  typestep.FunctionTyped(Factory,
+    &scud.FunctionGoProps{
+      SourceCodeModule: "github.com/fogfish/app",
+      SourceCodeLambda: "cmd/lambda",
+    },
+  ),
 )
 
-// annotates AWS Lambda with type-safe signature inside the workflow
-typestep.Join(core.GetUser, f, /* ... */)
+// use AWS Lambda with type-safe signature inside the workflow
+typestep.Join(f, /* ... */)
 ```
 
 This technique allows validation of function signatures at compile time.

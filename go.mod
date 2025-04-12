@@ -7,6 +7,7 @@ require (
 	github.com/aws/constructs-go/constructs/v10 v10.4.2
 	github.com/aws/jsii-runtime-go v1.109.0
 	github.com/fogfish/golem/duct v0.0.1
+	github.com/fogfish/scud v0.10.5
 )
 
 require (

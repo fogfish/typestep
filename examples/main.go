@@ -11,9 +11,7 @@ package main
 import (
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsevents"
-	"github.com/aws/aws-cdk-go/awscdk/v2/awslambda"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awssqs"
-	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/fogfish/scud"
 	"github.com/fogfish/typestep"
@@ -36,13 +34,43 @@ func main() {
 	)
 
 	//
+	// Declare AWS Lambda with type safe annotations
+	a2u := typestep.NewFunctionTyped(stack, jsii.String("AtoU"),
+		typestep.FunctionTyped(core.GetUserF, &scud.FunctionGoProps{
+			SourceCodeModule: "github.com/fogfish/typestep",
+			SourceCodeLambda: "examples/cmd/fAtoU",
+		}),
+	)
+
+	u2cs := typestep.NewFunctionTyped(stack, jsii.String("UtoCs"),
+		typestep.FunctionTyped(core.PickCategoryF, &scud.FunctionGoProps{
+			SourceCodeModule: "github.com/fogfish/typestep",
+			SourceCodeLambda: "examples/cmd/fUtoCs",
+		}),
+	)
+
+	c2ps := typestep.NewFunctionTyped(stack, jsii.String("CtoPs"),
+		typestep.FunctionTyped(core.PickProductF, &scud.FunctionGoProps{
+			SourceCodeModule: "github.com/fogfish/typestep",
+			SourceCodeLambda: "examples/cmd/fCtoPs",
+		}),
+	)
+
+	p2s := typestep.NewFunctionTyped(stack, jsii.String("PtoS"),
+		typestep.FunctionTyped(core.MailToF, &scud.FunctionGoProps{
+			SourceCodeModule: "github.com/fogfish/typestep",
+			SourceCodeLambda: "examples/cmd/fPtoS",
+		}),
+	)
+
+	//
 	// Declare AWS Step Function using typestep constructs
 	//
 	a := typestep.From[core.Account](input)
-	b := typestep.Join(core.GetUser, f(stack, "AtoU"), a)
-	c := typestep.Join(core.PickCategory, f(stack, "UtoCs"), b)
-	d := typestep.Lift(core.PickProduct, f(stack, "CtoPs"), c)
-	e := typestep.Lift(core.MailTo, f(stack, "PtoS"), d)
+	b := typestep.Join(a2u, a)
+	c := typestep.Join(u2cs, b)
+	d := typestep.Lift(c2ps, c)
+	e := typestep.Lift(p2s, d)
 	f := typestep.ToQueue(reply, e)
 
 	ts := typestep.NewTypeStep(stack, jsii.String("Pipe"),
@@ -53,15 +81,4 @@ func main() {
 	typestep.StateMachine(ts, f)
 
 	app.Synth(nil)
-}
-
-// Helper function to create AWS Lambda.
-// Just created to reduce code duplication
-func f(scope constructs.Construct, id string) awslambda.Function {
-	return scud.NewFunctionGo(scope, jsii.String(id),
-		&scud.FunctionGoProps{
-			SourceCodeModule: "github.com/fogfish/typestep",
-			SourceCodeLambda: "examples/cmd/f" + id,
-		},
-	)
 }
