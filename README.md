@@ -116,16 +116,15 @@ The primary reason is that the library automatically generates a `main.go` file 
 func GetUser(ctx context.Context, acc Account) (User, error) { /* ... */ } 
 
 // app/cmd/lambda/main.go
-func Factory() func(ctx context.Context, acc Account) (User, error) { return GetUser } 
+func Main() func(ctx context.Context, acc Account) (User, error) { return GetUser } 
 
 // app/internal/cdk/workflow.go
 
 // declares AWS Lambda resource
 f := typestep.NewFunctionTyped(stack, jsii.String("Lambda"),
-  typestep.NewFunctionTypedProps(Factory,
+  typestep.NewFunctionTypedProps(Main,
     &scud.FunctionGoProps{
       SourceCodeModule: "github.com/fogfish/app",
-      SourceCodeLambda: "cmd/lambda",
     },
   ),
 )

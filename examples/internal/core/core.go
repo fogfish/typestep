@@ -11,6 +11,8 @@ package core
 import (
 	"context"
 	"fmt"
+
+	_ "github.com/aws/aws-lambda-go/lambda"
 )
 
 type Account struct {
