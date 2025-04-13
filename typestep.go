@@ -9,7 +9,6 @@
 package typestep
 
 import (
-	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -37,11 +36,10 @@ type source struct {
 
 // Compose lambda function transformer 𝑓: B ⟼ C with morphism 𝑚: A ⟼ B producing a new morphism 𝑚: A ⟼ C.
 func Join[A, B, C any](
-	_ func(context.Context, B) (C, error),
-	f awslambda.IFunction,
+	f *Function[B, C],
 	m duct.Morphism[A, B],
 ) duct.Morphism[A, C] {
-	fn := lambda{concurency: 1, f: f}
+	fn := lambda{concurency: 1, f: f.IFunction}
 	return duct.Join(duct.L2[B, C](fn), m)
 }
 
@@ -58,11 +56,10 @@ type lambda struct {
 // either yielding individual elements or uniting (e.g. use Unit(Join(g, Lift(f)))
 // to leave nested context into the morphism 𝑚: A ⟼ []C).
 func Lift[A, B, C any](
-	_ func(context.Context, B) (C, error),
-	f awslambda.IFunction,
+	f *Function[B, C],
 	m duct.Morphism[A, []B],
 ) duct.Morphism[A, C] {
-	fn := lambda{concurency: 1, f: f}
+	fn := lambda{concurency: 1, f: f.IFunction}
 	return duct.LiftF(duct.L2[B, C](fn), m)
 }
 
@@ -70,11 +67,10 @@ func Lift[A, B, C any](
 // to specify the maximum number of concurrent invocations of the lambda function.
 func LiftP[A, B, C any](
 	n int,
-	_ func(context.Context, B) (C, error),
-	f awslambda.IFunction,
+	f *Function[B, C],
 	m duct.Morphism[A, []B],
 ) duct.Morphism[A, C] {
-	fn := lambda{concurency: n, f: f}
+	fn := lambda{concurency: n, f: f.IFunction}
 	return duct.LiftF(duct.L2[B, C](fn), m)
 }
 

@@ -2,6 +2,8 @@ github.com/Masterminds/semver/v3 v3.3.1 h1:QtNSWtVZ3nBfk8mAOu/B6v7FMJ+NHTIgUPi7r
 github.com/Masterminds/semver/v3 v3.3.1/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
 github.com/aws/aws-cdk-go/awscdk/v2 v2.185.0 h1:9GW3260WNV5FzKcV8joMKIo41JF1GZuEDn9berevbUs=
 github.com/aws/aws-cdk-go/awscdk/v2 v2.185.0/go.mod h1:DPhzICINlx7zXMrKjRGuta/bAAAaeBQbeStBzf8JHVI=
+github.com/aws/aws-lambda-go v1.47.0 h1:0H8s0vumYx/YKs4sE7YM0ktwL2eWse+kfopsRI1sXVI=
+github.com/aws/aws-lambda-go v1.47.0/go.mod h1:dpMpZgvWx5vuQJfBt0zqBha60q7Dd7RfgJv23DymV8A=
 github.com/aws/constructs-go/constructs/v10 v10.4.2 h1:+hDLTsFGLJmKIn0Dg20vWpKBrVnFrEWYgTEY5UiTEG8=
 github.com/aws/constructs-go/constructs/v10 v10.4.2/go.mod h1:cXsNCKDV+9eR9zYYfwy6QuE4uPFp6jsq6TtH1MwBx9w=
 github.com/aws/jsii-runtime-go v1.109.0 h1:PQkwf6bNxcqEabPh/C4Dnqm31WL0Uh47gGj1Q9ojwhs=
@@ -20,6 +22,8 @@ github.com/fogfish/golem/duct v0.0.1 h1:8LWf6+A6woFjeyBVTyYzf9B+cRWQSEjaisTQ5E2r
 github.com/fogfish/golem/duct v0.0.1/go.mod h1:Kq+iLf16NEVKnAmRc6dotUTalt2ZKkHx89a2QcN6lJo=
 github.com/fogfish/it/v2 v2.2.1 h1:NuuaENAZka8XiJkEj2Q6THRsHSwleC/BLDux82NvkII=
 github.com/fogfish/it/v2 v2.2.1/go.mod h1:HHwufnTaZTvlRVnSesPl49HzzlMrQtweKbf+8Co/ll4=
+github.com/fogfish/scud v0.10.5 h1:B4nSxNTUmUWeFvGwNp7SkKLKKpuX18a2suSeXML6x3E=
+github.com/fogfish/scud v0.10.5/go.mod h1:QMWoWSpEDZT1n9ky1qBylBHcm+kXIWBK5ha/S2kIPO4=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=
