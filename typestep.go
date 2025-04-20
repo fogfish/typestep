@@ -97,13 +97,14 @@ func ToQueue[A, B any](q awssqs.IQueue, m duct.Morphism[A, B]) duct.Morphism[A, 
 }
 
 // Yield results of 𝑚: A ⟼ B binding it with AWS EventBridge.
-func ToEventBus[A, B any](source string, bus awsevents.IEventBus, m duct.Morphism[A, B]) duct.Morphism[A, duct.Void] {
-	return duct.Yield(duct.L1[B](eventbus{bus: bus, source: source}), m)
+func ToEventBus[A, B any](source string, bus awsevents.IEventBus, m duct.Morphism[A, B], cat ...string) duct.Morphism[A, duct.Void] {
+	return duct.Yield(duct.L1[B](eventbus{bus: bus, source: source, cat: cat}), m)
 }
 
 type eventbus struct {
 	bus    awsevents.IEventBus
 	source string
+	cat    []string
 }
 
 //------------------------------------------------------------------------------
@@ -328,12 +329,17 @@ func (ts *typeStep) OnEnterYield(depth int, node duct.AstYield) error {
 		return nil
 
 	case eventbus:
+		kind := node.Type
+		if len(f.cat) != 0 {
+			kind = f.cat[0]
+		}
+
 		sink := awsstepfunctionstasks.NewEventBridgePutEvents(ts.Construct, jsii.String("Sink"),
 			&awsstepfunctionstasks.EventBridgePutEventsProps{
 				Entries: &[]*awsstepfunctionstasks.EventBridgePutEventsEntry{
 					{
 						Detail:     awsstepfunctions.TaskInput_FromJsonPathAt(jsii.String(ts.args)),
-						DetailType: jsii.String(node.Type),
+						DetailType: jsii.String(kind),
 						Source:     jsii.String(f.source),
 						EventBus:   f.bus,
 					},
