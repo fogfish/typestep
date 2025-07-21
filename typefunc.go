@@ -44,12 +44,34 @@ type Lambda[A, B any] = func() func(context.Context, A) (B, error)
 // The primary reason is that this construct automatically generates a `main.go`
 // file from the provided handler, ensuring consistent wiring and preserving type
 // information throughout the deployment process.
-type Function[A, B any] struct{ awslambda.IFunction }
+type Function[A, B any] struct {
+	Function awslambda.Function
+}
+
+func (f *Function[A, B]) HKT1(func(A) B)         {}
+func (f *Function[A, B]) F() awslambda.IFunction { return f.Function }
+
+// Instantiates deployment for "type-safe" AWS Lambda.
+func NewFunctionTyped[A, B any](scope constructs.Construct, id *string, spec *FunctionTypedProps[A, B]) *Function[A, B] {
+	path := autogen(spec.Handler, spec.SourceCodeModule, spec.AutoGen)
+	spec.SourceCodeLambda = filepath.Join(path, agdir)
+	flambda := scud.NewFunctionGo(scope, id, spec.FunctionGoProps)
+
+	return &Function[A, B]{Function: flambda}
+}
+
+// Imports an existing AWS Lambda function with type-safe annotations.
+type IFunction[A, B any] struct {
+	Handler awslambda.IFunction
+}
+
+func (f *IFunction[A, B]) HKT1(func(A) B)         {}
+func (f *IFunction[A, B]) F() awslambda.IFunction { return f.Handler }
 
 // Import existing function
-func Function_FromFunctionArn[A, B any](scope constructs.Construct, id *string, arn *string) *Function[A, B] {
-	return &Function[A, B]{
-		IFunction: awslambda.Function_FromFunctionArn(scope, id, arn),
+func Function_FromFunctionArn[A, B any](scope constructs.Construct, id *string, arn *string) *IFunction[A, B] {
+	return &IFunction[A, B]{
+		Handler: awslambda.Function_FromFunctionArn(scope, id, arn),
 	}
 }
 
@@ -75,6 +97,12 @@ func Function_FromFunctionArn[A, B any](scope constructs.Construct, id *string, 
 type FunctionTypedProps[A, B any] struct {
 	*scud.FunctionGoProps
 	Handler Lambda[A, B]
+	AutoGen bool
+}
+
+func (f *FunctionTypedProps[A, B]) ForceAutoGen() *FunctionTypedProps[A, B] {
+	f.AutoGen = true
+	return f
 }
 
 // Constructor for NewFunctionTypedProps to support automatic inference of types from function
@@ -85,22 +113,13 @@ func NewFunctionTypedProps[A, B any](f Lambda[A, B], props *scud.FunctionGoProps
 	}
 }
 
-// Instantiates deployment for "type-safe" AWS Lambda.
-func NewFunctionTyped[A, B any](scope constructs.Construct, id *string, spec *FunctionTypedProps[A, B]) *Function[A, B] {
-	path := autogen(spec.Handler, spec.SourceCodeModule, spec.SourceCodeLambda)
-	spec.SourceCodeLambda = filepath.Join(path, agdir)
-	flambda := scud.NewFunctionGo(scope, id, spec.FunctionGoProps)
-
-	return &Function[A, B]{
-		IFunction: flambda,
-	}
-}
-
 //------------------------------------------------------------------------------
 
 const agdir = "autogen"
 
-func autogen[A, B any](f Lambda[A, B], scModule, scLambda string) string {
+// autogen generates a `main.go` file for the provided Lambda function.
+// The file is created in the `autogen` directory relative to the source code module.
+func autogen[A, B any](f Lambda[A, B], scModule string, force bool) string {
 	fptr := reflect.ValueOf(f).Pointer()
 	fobj := runtime.FuncForPC(fptr)
 	if fobj == nil {
@@ -126,6 +145,13 @@ func main() { lambda.Start(%s()) }
 
 	gofile, _ := fobj.FileLine(fptr)
 	codepath := filepath.Join(filepath.Dir(gofile), agdir, "main.go")
+
+	if !force {
+		if _, err := os.Stat(codepath); err == nil {
+			// If the file already exists, we assume it has been generated before
+			return strings.TrimPrefix(path, scModule)
+		}
+	}
 
 	err := os.MkdirAll(filepath.Dir(codepath), 0766)
 	if err != nil {

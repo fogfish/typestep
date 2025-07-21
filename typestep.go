@@ -24,6 +24,23 @@ import (
 	"github.com/fogfish/golem/duct"
 )
 
+// F is a generic interface that represents a function from A to B
+// and its associated AWS Lambda implementation.
+//
+// It's phantom method HKT1, which encodes the type-level information
+// of a rank-1 function type func(A) B. This serves as a placeholder
+// and ensures that implementations respect the intended type signature.
+//
+// An actual AWS Lambda implementation through the F() method.
+type F[A, B any] interface {
+	// HKT1 is a phantom method that represents the type-level
+	// information of a function A → B. It is not meant to be called.
+	HKT1(func(A) B)
+
+	// F returns the underlying AWS Lambda IFunction instance.
+	F() awslambda.IFunction
+}
+
 // Creates new morphism 𝑚, binding it with EventBridge for reading category `A` events.
 func From[A any](in awsevents.IEventBus, cat ...string) duct.Morphism[A, A] {
 	return duct.From(duct.L1[A](source{cat: cat, bus: in}))
@@ -36,10 +53,10 @@ type source struct {
 
 // Compose lambda function transformer 𝑓: B ⟼ C with morphism 𝑚: A ⟼ B producing a new morphism 𝑚: A ⟼ C.
 func Join[A, B, C any](
-	f *Function[B, C],
+	f F[B, C],
 	m duct.Morphism[A, B],
 ) duct.Morphism[A, C] {
-	fn := lambda{concurency: 1, f: f.IFunction}
+	fn := lambda{concurency: 1, f: f.F()}
 	return duct.Join(duct.L2[B, C](fn), m)
 }
 
@@ -56,10 +73,10 @@ type lambda struct {
 // either yielding individual elements or uniting (e.g. use Unit(Join(g, Lift(f)))
 // to leave nested context into the morphism 𝑚: A ⟼ []C).
 func Lift[A, B, C any](
-	f *Function[B, C],
+	f F[B, C],
 	m duct.Morphism[A, []B],
 ) duct.Morphism[A, C] {
-	fn := lambda{concurency: 1, f: f.IFunction}
+	fn := lambda{concurency: 1, f: f.F()}
 	return duct.LiftF(duct.L2[B, C](fn), m)
 }
 
@@ -67,10 +84,10 @@ func Lift[A, B, C any](
 // to specify the maximum number of concurrent invocations of the lambda function.
 func LiftP[A, B, C any](
 	n int,
-	f *Function[B, C],
+	f F[B, C],
 	m duct.Morphism[A, []B],
 ) duct.Morphism[A, C] {
-	fn := lambda{concurency: n, f: f.IFunction}
+	fn := lambda{concurency: n, f: f.F()}
 	return duct.LiftF(duct.L2[B, C](fn), m)
 }
 
